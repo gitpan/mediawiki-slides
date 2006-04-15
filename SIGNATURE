@@ -1,0 +1,36 @@
+This file contains message digests of all files listed in MANIFEST,
+signed via the Module::Signature module, version 0.42.
+
+To verify the content in this distribution, first make sure you have
+Module::Signature installed, then type:
+
+    % cpansign -v
+
+It will check each file's integrity, as well as the signature's
+validity.  If "==> Signature verified OK! <==" is not displayed,
+the distribution may already have been compromised, and you should
+not run its Makefile.PL or Build.PL.
+
+-----BEGIN PGP SIGNED MESSAGE-----
+
+SHA1 30ceba8f4e2d6b3906dbd719d85b687c9290e690 .htaccess
+SHA1 8dcc0668a0ef1ad8b7aa183ed9a07f4444433772 CHANGES
+SHA1 02154445bc9831e791c35050f1a018ed99030016 LICENSE
+SHA1 6da736a0c60ea9048c5a88fac31e0922713b9562 MANIFEST
+SHA1 5a9616e5c215d437e2d73cf7a6ac14c70a0b91d9 META.yml
+SHA1 4f42ec995ccbaf24c8fcf288d4c137a8cc6854a1 Makefile.PL
+SHA1 d0e8738503d12b340da53a00df8654dc658b2ceb README
+SHA1 fcbb11e0c3b7cd3d82a337ad2193cf15bb774599 TODO
+SHA1 57e776703e3687bad43b98c16705647262e6cb53 extensions/Slides.php
+SHA1 c2363efbdd808a45b2ecb3b8508fd86b5b4d4b40 t/00_basic.t
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iQEVAwUBREFDX3cLPEOTuEwVAQGxMwf/UXk+1jPnH6xmTZ6obBXs8TufKHh+KLOA
+TxCwZfgEJTlNbACU5zXCK44dokCZcdpuqELPrywMDFmlfUKD1ftfBC4YgNoG9H+f
+rLmXa6r8kS3ZXmn8zFlWqfe2vh73dsIjPebKwUzkCEC+wYQt6SZVF9xk5j+iS35a
+jULu+lD+9Y1HepH+QNWyigzP7JTfZnZDPBtcl1wWbSQdWx74eFleTOeNG2HHszcl
+hqXQXejd5U9uTmD656XOFdavNmSxwSTksx9MYDrREzhvH20KbFkIaX6ktyqNMROb
+le1FiYMOPtTPnaI/I8yNSg/pxg1Zk8arncwwoQ/SQUYGtlj9OZa4Yw==
+=Xqce
+-----END PGP SIGNATURE-----

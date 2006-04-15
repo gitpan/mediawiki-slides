@@ -1,0 +1,10 @@
+---
+name: mediawiki-slides
+abstract: Generate presentation slides inside Wikimedia
+version: 0.01
+version_from: ''
+license: gpl
+distribution_type: module
+generated_by: mediawiki-slides version 0.01
+installdirs: site
+requires: {}

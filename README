@@ -1,0 +1,127 @@
+=pod
+
+To better view this file, use:
+
+	perldoc README
+
+=head1 slide
+
+Takes a list of articles for a presentation as well as the
+presentation name and generates a navigation box for
+these slides, which also hightlights the current slide.
+
+This package is intended to integrate into Wikimedia, the software
+behind popular wikis like http://en.wikipedia.org/.
+
+Example input:
+
+	<slide>
+	toc=false
+	name=My Presentation
+	Start
+	How to?
+	Finish
+	</slide>
+
+would result in something like this:
+
+	[[My Presentation - Start|Start]] - [[My Presentation - How to?|How to?]] - [[My Presentation - Finish|Finish]]
+
+=head1 Check the Signature
+
+First you need to check the signature on the package to verify that
+it is untampered and intact. To do this you have to:
+
+=over 2
+
+=item *
+
+Install the Perl module Module::Signature from http://search.cpan.org
+
+=item *
+
+Get my key from http://bloodgate.com/tels.asc, import it into
+GnuPG with:
+
+	gpg --import tels.asc
+
+You may also let the C<cpansign> utility fetch it automatically
+from a keyserver, if that works for you.
+
+=item *
+
+Extract the package to a directory, change there and then:
+
+=item *
+
+Type on a console:
+
+	cpansign --verify
+
+inside the unpacked directory. 
+
+=back
+
+If the last step says "good signature" or "SIGNATURE VERIFIED OK",
+everything is all right.
+
+Note that if you C<cpansign> let GnuPG download my key from a keyserver,
+it might put a C<tels.asc> file in the package directory, and then afterward
+complain that "tels.asc" is not in the MANIFEST:
+
+ Not in MANIFEST: tels.asc
+ ==> MISMATCHED content between MANIFEST and distribution files! <==
+
+You can safely ignore this warning.
+
+B<NOTE:> Please notify me immidiately if the signature
+does not verify. In that case do B<NOT> install this software, your system
+might get compromised!
+
+=head1 Installation
+
+You need Mediawiki 1.6 or better.
+
+=head2 Run the testsuite
+
+Run in the directory of this package:
+
+	perl Makefile.PL
+	make test
+
+All tests should pass. If not, please notify me.
+
+Make a backup of your wiki directory! I repeat, MAKE A BACKUP! You have been
+warned!
+
+Now copy B<all> the files from the C<extensions/> subdirectory inside
+this extension to the extension dir of your wiki, like so:
+
+	http_docroot
+		\ - cgi-bin			etc
+		\ - wiki
+			\ - extensions		<-- to here
+
+At present this is only one file, C<Slides.php>.
+
+Then include the following line at the bottom of your C<LocalSettings.php>,
+but before the "?>" line:
+
+	require_once('extensions/Slides.php');
+
+=head1 Usage
+
+A complete presentation, created with this very module itself, can
+be found at:
+
+	http://bloodgate.com/wiki/
+
+=head1 AUTHOR
+
+Copyright (C) 2006 by Tels http://bloodgate.com/
+
+Contact: <nospam-abuse@bloodgate.com> (literally :)
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms of the GPL version 2.
+

@@ -1,0 +1,11 @@
+.htaccess
+CHANGES
+README
+MANIFEST
+LICENSE
+SIGNATURE
+TODO
+META.yml			Module meta-data
+extensions/Slides.php
+Makefile.PL
+t/00_basic.t
