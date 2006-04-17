@@ -14,9 +14,11 @@
 # hideMenu=true/false		(default: true, hide the left menu column)
 # hideFooter=true/false		(default: true, hide the footer)
 # hideHeading=true/false	(default: true, hide the first-level headline)
+# fontsize=120%			(default: 100%, the fontsize for the body, in %)
+# showButtons=true		(default: true, show |< << >> >| buttons on the navbar)
 
 # The "hide" options are only in effect in subsequent pages, this allows you
-# to "break out" of the presentation by going to the first page.
+# to "break out" of the presentation by going to the very first page.
 
 # Article reference:
 # Name1|Text in Navbar|Mouseover title
@@ -38,7 +40,7 @@
 # add at the bottom of LocalSettings.php, but before the "? >", the following:
 # require_once("extensions/Slides.php");
 
-# For documentation see http://bloodgate.com/wiki/
+# For full documentation please see: http://bloodgate.com/wiki/
 
 $wgExtensionFunctions[] = "wfSlidesExtension";
  
@@ -51,31 +53,43 @@ function wfSlidesExtension() {
   $wgParser->setHook( "slides", "renderNavigation" );
 }
 
-# for Special::Version:
+# for Makefile.PL
+/*
+$VERSION = 0.02; */
 
+# for Special::Version:
 $wgExtensionCredits['parserhook'][] = array(
 	'name' => 'slides (presentation) extension',
 	'author' => 'Tels',
-	'url' => 'http://wwww.bloodgate.com/wiki/',
-	'version' => 'v0.01',
+	'url' => 'http://bloodgate.com/wiki/',
+	'version' => 'v0.02',
 );
  
 # The callback function for outputting the HTML code
-function renderNavigation( $sInput, $sParams )
+function renderNavigation( $sInput, $sParams, $parser = null )
   {
-  global $wgParser;
   global $wgArticlePath;
   global $wgScript;
+
+  # if we didn't get the parser passed in, we are running under an older mediawiki
+  if (!$parser) $parser =& $_GLOBALS['wgParser'];
 
   $aParams = array();
   $sCurrent;				# the page we are currently on
   $aLinks = array();			# all the entries in the navbar
   $sPrefix = '';			# the presentations name
   $bArticles = false;			# stopped parsing options?
+  $sFontSize = '';			# set a new font size for the body?
 
   $bHideHeading = true;			# hide first-level headline?
   $bHideMenu = true;			# hide left menu-column?
   $bHideFooter = true;			# hide footer?
+  $bShowButtons = true;			# show nav buttons (|< << >> >|)
+
+  # Find out whether we are currently rendering for a preview, or the final
+  # XXX TODO: unreliable and unused yet
+  global $action;
+  $bPreview = false; if ($action == 'submit') { $bPreview = true; }
 
   ###########################################################################
   # Parse the parameters, stop at first "Invalid" looking one
@@ -99,6 +113,15 @@ function renderNavigation( $sInput, $sParams )
 	{
 	case 'name':
 	  $sPrefix = $sVal;
+	  break;
+
+	case 'fontsize':
+	  if (preg_match('/^\d+%$/',$sVal)) { $sFontSize = $sVal; }
+	  break;
+
+	case 'showButtons':
+	  # true is the default
+	  if ($sVal == 'false') { $bShowButtons = false; }
 	  break;
 
 	case 'hideMenu':
@@ -142,13 +165,14 @@ function renderNavigation( $sInput, $sParams )
       }
     } 
 
-  # Format the navbar as table
+  $sSmall = '85%';
+  # Format the navbar as table (would love to do that as CSS, tho)
   $output = 
-    '<table style="border: none; background: inherit;"><tr><td style="vertical-align: top">' 
+    "<table style=\"font-size:$sSmall;" . 'border:none;background:inherit"><tr><td style="vertical-align:top">' 
     . $sPrefix . ':&nbsp;</td><td>';
 
   # Get the current page from the Parser member mTitle, to make it different
-  $sCurrent = $wgParser->mTitle->getText();
+  $sCurrent = $parser->mTitle->getText();
 
   # 'My presentation - Start' => 'Start'
   if ($sPrefix != '')
@@ -183,6 +207,7 @@ function renderNavigation( $sInput, $sParams )
   $sCurTopic = '';
   $sCurSubTopic = '';
   $sLastTopic = '';
+  $iCurr = 1;				# index of current topic	
   # find the current topic
   $i = 0;
   while ($i < count($aLinks))
@@ -198,6 +223,7 @@ function renderNavigation( $sInput, $sParams )
         # remove the leading '*'
 	$sCurTopic = $sLastTopic;
 	$sCurSubTopic = preg_replace('/^\*/', '', $aTitle[0]);
+        $iCurr = $i;
 	}
       }
     else
@@ -207,6 +233,7 @@ function renderNavigation( $sInput, $sParams )
 	{
 	$sCurTopic = $aTitle[0];
 	$sCurSubTopic = '';
+        $iCurr = $i;
 	}
       $sLastTopic = $aTitle[0];
       }
@@ -274,28 +301,11 @@ function renderNavigation( $sInput, $sParams )
 
     if (!$bBuildLink)
       {	
-      $sOut = '<b>' . $aTitle[1] . '</b>';
+      $sOut = '<b>' . preg_replace('/_/', ' ', $aTitle[1]) . '</b>';
       }
     else
       {
-      $sLink = _escape($aTitle[0]);
-      $sText = _escape($aTitle[1]);
-      $sTitle = _escape($aTitle[2]);
-
-      # escape quotes in these two
-      $sLink = preg_replace('/"/', '&quot;', $sLink);
-      $sTitle = preg_replace('/"/', '&quot;', $sTitle);
-      # escape spaces in the link
-      $sLink = preg_replace('/ /',  '_', $sLink);
-
-      if ($sTitle != '')
-	{
-        $sTitle = ' title="' . $sTitle . '"';
-	}
-
-      # build the link
-      $sLink = $sPrefix . $sLink;
-      $sOut = $sBold . "<a href=\"$sPath$sLink\"$sTitle>$sText</a>" . $sBold1;
+      $sOut = $sBold . _build_link($sPrefix, $sLink) . $sBold1;
       }
 
     if ($i != 0 && $iFirstSub != 1) { $sOut = ' - ' . $sOut; }
@@ -319,6 +329,38 @@ function renderNavigation( $sInput, $sParams )
     $sSubTopics = '<br />' . $sSubTopics . '</span>';
     }
 
+  $aTitle = _explode($aLinks[0]);
+  $bOnFirstPage = false;
+  if (strcmp($sCurrent,$aTitle[0]) == 0) { $bOnFirstPage = true; }
+  $aTitle = _explode($aLinks[count($aLinks)-1]);
+  $bOnLastPage = false;
+  if (strcmp($sCurrent,$aTitle[0]) == 0) { $bOnLastPage = true; }
+
+  ###########################################################################
+  # generate next/prev links
+
+  $sButtons = '';
+
+  # only include buttons if not editing the template
+  if (($sCurTopic != '') && $bShowButtons)
+    {
+    if (!$bOnFirstPage)
+      {
+      $sButtons = 
+        _build_link($sPrefix, $aLinks[0], '|&lt;', 'First page') . '&nbsp;' 
+      . _build_link($sPrefix, $aLinks[$iCurr-1], '&lt;&lt;', 'Previous page'); 
+      }
+    if (!$bOnLastPage)
+      {
+      $sButtons .= '&nbsp;&nbsp;' . _build_link($sPrefix, $aLinks[$iCurr+1], '&gt;&gt;', 'Next page')
+      . '&nbsp;' . _build_link($sPrefix, $aLinks[count($aLinks)-1], '&gt;|', 'Last page');
+      }
+    if ($sButtons != '')
+      {
+      $sButtons = "<span style=\"float:right;\">$sButtons&nbsp;</span>";
+      }
+    }
+
   ###########################################################################
   # generate style to suppress the different elements
 
@@ -335,18 +377,61 @@ function renderNavigation( $sInput, $sParams )
 
   $sStyles = '';
 
-  $aTitle = _explode($aLinks[0]);
-  # on the first page, do not hide anything
-  if ((strcmp($sCurrent, $aTitle[0]) != 0) &&
-  # likewise if we do not have anything to suppress
-      (count($aStyles) > 0) && 
-  # or don't have a current topic (like when editing the template)
-      ($sCurTopic != '') )
+  # on the first page, or if no topic (like when editing the template), do
+  # not hide anything
+  if ( $bOnFirstPage || ($sCurTopic == '') )
     {
-    $sStyles = '<style type="text/css">' . join(',',$aStyles) . "{display:none}$sMoreStyles</style>";
+    $aStyles = array();
+    $sMoreStyles = '';
     }
 
-  return $sStyles . $output . $sSubTopics . '</td></tr></table';
+  # maybe we need to set the fontsize
+  if (($sFontSize != '') && ($sCurTopic != '')) 
+    {
+    $sMoreStyles .= "#bodyContent{font-size: $sFontSize}";
+    }
+
+  # do we need to set some styles?
+  if ( (count($aStyles) > 0) || ($sMoreStyles != '') )
+#  # and we are not in preview
+#      ($bPrewview) )
+    {
+    if (count($aStyles) > 0) { $sStyles = join(',',$aStyles) . "{display:none}"; }
+    $sStyles = '<style type="text/css">' . "$sStyles$sMoreStyles</style>";
+    }
+
+  return $sStyles . $sButtons . $output . $sSubTopics . "</td></tr></table>";
+  }
+
+function _build_link ($sPrefix, $sTheLink, $sOptionalText = '', $sOptionalTitle = '')
+  {
+  # build a link from the prefix and one entry in the link-array
+
+  $aTitle = _explode($sTheLink);
+  $sLink = _escape($aTitle[0]);
+  $sText = _escape($aTitle[1]);
+  $sTitle = _escape($aTitle[2]);
+
+  if ($sOptionalText != '') { $sText = $sOptionalText; }
+  if ($sOptionalTitle != '') { $sTitle = $sOptionalTitle; }
+
+  # escape quotes in these two
+  $sLink = preg_replace('/"/', '&quot;', $sLink);
+  $sTitle = preg_replace('/"/', '&quot;', $sTitle);
+  # escape spaces in the link
+  $sLink = preg_replace('/ /',  '_', $sLink);
+  # inside the text, we want spaces, not underscored
+  $sText = preg_replace('/_/', ' ', $sText);
+  # remove the leading '*' from article names
+  $sLink = preg_replace('/^\*/', '', $sLink);
+
+  if ($sTitle != '')
+    {
+    $sTitle = ' title="' . $sTitle . '"';
+    }
+
+  # build the link
+  return "<a href=\"$sPath$sPrefix$sLink\"$sTitle>$sText</a>";
   }
 
 function _explode ($sLink)

@@ -1,3 +1,13 @@
 
+2006-04-17 v0.02 Tels 1 tests
+  * fix stupid typo ("</table" vs "</table>". garbled output in all browsers
+    except Firefox)
+  * make parser param a bit more safe, and working under older revisions
+  * fix URL for version
+  * keep the VERSION only in Slides.php for easier maintainence
+  * added option "fontsize" (increase body fontsize, in percent)
+  * added option "showButtons" (add nav-buttons |< << >> >| on top right)
+  * Slides with spaces work now more reliable (no longer show "My_Slide" etc)
+
 2006-04-15 v0.01 Tels 1 tests
   * first working version

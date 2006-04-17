@@ -34,7 +34,7 @@ sub MY::metafile {
 
 WriteMakefile(
     NAME		=> 'mediawiki-slides',
-    VERSION		=> '0.01',
+    VERSION_FROM	=> 'extensions/Slides.php',
     PREREQ_PM		=> {
 	},
     ABSTRACT		=> 'Generate presentation slides inside Wikimedia',
