@@ -1,10 +1,10 @@
 ---
 name: mediawiki-slides
 abstract: Generate presentation slides inside Wikimedia
-version: 0.02
+version: 0.03
 version_from: extensions/Slides.php
 license: gpl
 distribution_type: module
-generated_by: mediawiki-slides version 0.02
+generated_by: mediawiki-slides version 0.03
 installdirs: site
 requires: {}

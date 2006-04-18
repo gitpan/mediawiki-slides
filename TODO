@@ -2,4 +2,5 @@
 * Links to non-existant pages are not yet colored red.
 * The tabs "article", "edit" etc are too far to the right
 * add "[]" button to get the menu back (needs javascript toggle)
+* IE has problems with the invisible menu (the space is still reserved)
 

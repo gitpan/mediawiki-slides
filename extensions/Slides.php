@@ -55,14 +55,14 @@ function wfSlidesExtension() {
 
 # for Makefile.PL
 /*
-$VERSION = 0.02; */
+$VERSION = 0.03; */
 
 # for Special::Version:
 $wgExtensionCredits['parserhook'][] = array(
 	'name' => 'slides (presentation) extension',
 	'author' => 'Tels',
 	'url' => 'http://bloodgate.com/wiki/',
-	'version' => 'v0.02',
+	'version' => 'v0.03',
 );
  
 # The callback function for outputting the HTML code
@@ -168,7 +168,7 @@ function renderNavigation( $sInput, $sParams, $parser = null )
   $sSmall = '85%';
   # Format the navbar as table (would love to do that as CSS, tho)
   $output = 
-    "<table style=\"font-size:$sSmall;" . 'border:none;background:inherit"><tr><td style="vertical-align:top">' 
+    "<table style=\"font-size:$sSmall;" . 'border:none;background:transparent"><tr><td style="vertical-align:top">' 
     . $sPrefix . ':&nbsp;</td><td>';
 
   # Get the current page from the Parser member mTitle, to make it different
@@ -201,6 +201,8 @@ function renderNavigation( $sInput, $sParams, $parser = null )
   if ($sPath == '') { $sPath = $wgScript . '/'; }
   # "index.php?title=$1" => "index.php?title="
   $sPath = preg_replace('/\$1/', '', $sPath);
+  # "/wiki/index.php?title="  =>  "/wiki/index.php?title=My_Presentation"
+  $sPath .= $sPrefix;
 
   # we need two passes, in the first one we find the curren topic and subtopic:
 
@@ -305,7 +307,7 @@ function renderNavigation( $sInput, $sParams, $parser = null )
       }
     else
       {
-      $sOut = $sBold . _build_link($sPrefix, $sLink) . $sBold1;
+      $sOut = $sBold . _build_link($sPath, $sLink) . $sBold1;
       }
 
     if ($i != 0 && $iFirstSub != 1) { $sOut = ' - ' . $sOut; }
@@ -347,13 +349,14 @@ function renderNavigation( $sInput, $sParams, $parser = null )
     if (!$bOnFirstPage)
       {
       $sButtons = 
-        _build_link($sPrefix, $aLinks[0], '|&lt;', 'First page') . '&nbsp;' 
-      . _build_link($sPrefix, $aLinks[$iCurr-1], '&lt;&lt;', 'Previous page'); 
+        _build_link($sPath, $aLinks[0], '|&lt;', 'First page') . '&nbsp;' 
+      . _build_link($sPath, $aLinks[$iCurr-1], '&lt;&lt;', 'Previous page'); 
       }
     if (!$bOnLastPage)
       {
-      $sButtons .= '&nbsp;&nbsp;' . _build_link($sPrefix, $aLinks[$iCurr+1], '&gt;&gt;', 'Next page')
-      . '&nbsp;' . _build_link($sPrefix, $aLinks[count($aLinks)-1], '&gt;|', 'Last page');
+      #											  accesskey=' '
+      $sButtons .= '&nbsp;&nbsp;' . _build_link($sPath, $aLinks[$iCurr+1], '&gt;&gt;', 'Next page', ' ')
+      . '&nbsp;' . _build_link($sPath, $aLinks[count($aLinks)-1], '&gt;|', 'Last page');
       }
     if ($sButtons != '')
       {
@@ -372,7 +375,6 @@ function renderNavigation( $sInput, $sParams, $parser = null )
     $aStyles[] = '#p-logo,#p-navigation,#p-search,#p-tb';
     $sMoreStyles = '#column-content{ margin: 0 0 0.6em -1em}#content{margin: 2.8em 0 0 1em;}#p-actions{margin-left: 1em;}';
     }
-  if ($bHideHeading)	{ $aStyles[] = '.firstHeading'; }
   if ($bHideFooter)	{ $aStyles[] = '#footer'; }
 
   $sStyles = '';
@@ -384,6 +386,9 @@ function renderNavigation( $sInput, $sParams, $parser = null )
     $aStyles = array();
     $sMoreStyles = '';
     }
+
+  # hide the heading, even on the first page
+  if ($bHideHeading)	{ $aStyles[] = '.firstHeading'; }
 
   # maybe we need to set the fontsize
   if (($sFontSize != '') && ($sCurTopic != '')) 
@@ -403,7 +408,7 @@ function renderNavigation( $sInput, $sParams, $parser = null )
   return $sStyles . $sButtons . $output . $sSubTopics . "</td></tr></table>";
   }
 
-function _build_link ($sPrefix, $sTheLink, $sOptionalText = '', $sOptionalTitle = '')
+function _build_link ($sPath, $sTheLink, $sOptionalText = '', $sOptionalTitle = '', $sAccessKey = '')
   {
   # build a link from the prefix and one entry in the link-array
 
@@ -430,8 +435,13 @@ function _build_link ($sPrefix, $sTheLink, $sOptionalText = '', $sOptionalTitle 
     $sTitle = ' title="' . $sTitle . '"';
     }
 
+  if ($sAccessKey != '')
+    {
+    $sAccessKey = ' accesskey="' . $sAccessKey . '"';
+    }
+
   # build the link
-  return "<a href=\"$sPath$sPrefix$sLink\"$sTitle>$sText</a>";
+  return "<a href=\"$sPath$sLink\"$sTitle$sAccessKey>$sText</a>";
   }
 
 function _explode ($sLink)

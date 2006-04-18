@@ -15,13 +15,12 @@ behind popular wikis like http://en.wikipedia.org/.
 
 Example input:
 
-	<slide>
-	toc=false
+	<slides>
 	name=My Presentation
 	Start
 	How to?
 	Finish
-	</slide>
+	</slides>
 
 would result in something like this:
 
@@ -80,7 +79,8 @@ might get compromised!
 
 =head1 Installation
 
-You need Mediawiki 1.6 or better.
+This extension was developed and tested with Mediawiki 1.6.3. It seems to
+work on 1.5.x, too, but you are encouraged to update the Mediawiki software.
 
 =head2 Run the testsuite
 
