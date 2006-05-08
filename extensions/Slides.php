@@ -55,14 +55,14 @@ function wfSlidesExtension() {
 
 # for Makefile.PL
 /*
-$VERSION = 0.03; */
+$VERSION = 0.04; */
 
 # for Special::Version:
 $wgExtensionCredits['parserhook'][] = array(
 	'name' => 'slides (presentation) extension',
 	'author' => 'Tels',
 	'url' => 'http://bloodgate.com/wiki/',
-	'version' => 'v0.03',
+	'version' => 'v0.04',
 );
  
 # The callback function for outputting the HTML code
@@ -166,10 +166,11 @@ function renderNavigation( $sInput, $sParams, $parser = null )
     } 
 
   $sSmall = '85%';
+  $sName = preg_replace('/ /', '&nbsp;', $sPrefix);
   # Format the navbar as table (would love to do that as CSS, tho)
   $output = 
     "<table style=\"font-size:$sSmall;" . 'border:none;background:transparent"><tr><td style="vertical-align:top">' 
-    . $sPrefix . ':&nbsp;</td><td>';
+    . $sName . ':&nbsp;</td><td>';
 
   # Get the current page from the Parser member mTitle, to make it different
   $sCurrent = $parser->mTitle->getText();
@@ -396,6 +397,9 @@ function renderNavigation( $sInput, $sParams, $parser = null )
     $sMoreStyles .= "#bodyContent{font-size: $sFontSize}";
     }
 
+  # hide the navbar on print
+  $sMoreStyles .= "@media print { #slides-navbar { display: none; } }";
+
   # do we need to set some styles?
   if ( (count($aStyles) > 0) || ($sMoreStyles != '') )
 #  # and we are not in preview
@@ -405,7 +409,7 @@ function renderNavigation( $sInput, $sParams, $parser = null )
     $sStyles = '<style type="text/css">' . "$sStyles$sMoreStyles</style>";
     }
 
-  return $sStyles . $sButtons . $output . $sSubTopics . "</td></tr></table>";
+  return $sStyles . $sButtons . $output . $sSubTopics . '</td></tr></table>';
   }
 
 function _build_link ($sPath, $sTheLink, $sOptionalText = '', $sOptionalTitle = '', $sAccessKey = '')
@@ -425,8 +429,9 @@ function _build_link ($sPath, $sTheLink, $sOptionalText = '', $sOptionalTitle = 
   $sTitle = preg_replace('/"/', '&quot;', $sTitle);
   # escape spaces in the link
   $sLink = preg_replace('/ /',  '_', $sLink);
-  # inside the text, we want spaces, not underscored
+  # inside the text and title, we want spaces, not underscores
   $sText = preg_replace('/_/', ' ', $sText);
+  $sTitle = preg_replace('/_/', ' ', $sTitle);
   # remove the leading '*' from article names
   $sLink = preg_replace('/^\*/', '', $sLink);
 

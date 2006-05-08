@@ -1,4 +1,10 @@
 
+2006-05-08 v0.04 Tels 2 tests
+  * mouse-over titles had underscores instead of spaces
+  * nav-bar will no longer appear when printing a slide
+    (needs adding id="slides-navbar" to the template!) 
+  * make the name of the presentation non-wrapping
+
 2006-04-18 v0.03 Tels 1 tests
   * make to really work under Mediawiki 1.5.x
   * use "background:transparent" vs "background:inherit" for IE (grrr)
